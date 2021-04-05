@@ -1,0 +1,16 @@
+.tab-list {
+  display: table;
+  cursor: pointer;
+}
+.tab-list-item {
+  float: left;
+  list-style-type: none;
+  margin-left: 5px;
+  margin-right: 5px;
+  padding: 2px;
+}
+
+.tab-list-item.active {
+  font-weight: bold;
+  border: black 1px solid;
+}

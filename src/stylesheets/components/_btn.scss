@@ -1,0 +1,27 @@
+.btn {
+  color: #666;
+  font-size: 15px;
+  background: #ffffff;
+  padding: 8px 8px 8px 8px;
+  width: 100%;
+  border: solid #dfe0e4 1px;
+  text-decoration: none;
+  text-align: center;
+
+  &.save {
+    width: 25%;
+    display: table;
+    margin: 0px auto;
+  }
+}
+
+.btn:hover {
+  background: #1385e5;
+  text-decoration: none;
+  color: white;
+}
+
+.btn.active {
+  color: #1385e5;
+  background: lightgray;
+}
