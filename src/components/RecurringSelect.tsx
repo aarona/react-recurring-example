@@ -11,13 +11,19 @@ export type DailyValidations = number[] & BaseValidations
 export type DayOfWeekValidations = { 1: number[], 2: number[], 3: number[], 4: number[] } & BaseValidations
 export type DayOfMonthValidations = number[] & BaseValidations
 export type Validations = DailyValidations | DayOfWeekValidations | DayOfMonthValidations | null
-
+export type IceCubeRule = "IceCube::DailyRule" | "IceCube::WeeklyRule" | "IceCube::MonthlyRule" | "IceCube::YearlyRule"
+export type IceCubeHash = {
+  rule_type: IceCubeRule
+  interval: number,
+  until: string,
+  validations: Validations
+}
 export interface RecurringEvent {
   rule: string
   interval: number
   validations: Validations
   until: Date | Date[]
-  startTime: string
+  startTime?: Date
 }
 
 const RecurringSelect: React.FC = () => {
@@ -26,7 +32,7 @@ const RecurringSelect: React.FC = () => {
     interval: 1,
     validations: null,
     until: DateTime.now().toJSDate(),
-    startTime: '10:00 AM'
+    startTime: DateTime.now().toJSDate()
   })
 
   const { rule, interval, validations, until, startTime } = recurringEvent
@@ -37,14 +43,14 @@ const RecurringSelect: React.FC = () => {
   const handleRuleChange = (e:any) => {
     let rule: string = e.target.value;
     let validations:Validations = null;
-    if (rule === "weekly") validations = [];
+    if (rule === "weekly") validations = [] as number[];
     if (rule === "monthly (by day of week)") {
       rule = "monthly";
-      validations = { 1: [], 2: [], 3: [], 4: [] };
+      validations = { 1: [], 2: [], 3: [], 4: [] } as DayOfWeekValidations;
     }
     if (rule === "monthly (by day of month)") {
       rule = "monthly";
-      validations = [];
+      validations = [] as number[];
     }
 
     setRecurringEvent({
@@ -69,7 +75,7 @@ const RecurringSelect: React.FC = () => {
       startTime
     })
   }
-  const handleValidationsChange = (validations:any) => {
+  const handleValidationsChange = (validations: Validations) => {
     setRecurringEvent({
       rule,
       interval,
@@ -88,28 +94,39 @@ const RecurringSelect: React.FC = () => {
     })
   }
   const handleTimeChange = (time:TimePickerValue) => {
-    console.log("handleTimeChat: ", time);
+    var startTime: Date | undefined = undefined
+
+    if(time) {
+      startTime = DateTime.fromISO(time.toString()).toJSDate()
+    }
+    
+    // DateTime.now().toJSDate()
+    // console.log("handleTimeChat: ", time);
     
     setRecurringEvent({
       rule,
       interval,
       validations,
       until,
-      startTime: time.toString()
+      startTime
     })
   }
   const handleSave = () => {
     console.log(validations);
     
-    var iceCubeHash:any = {};
     console.log("startTime: ", startTime);
     
-    var start = DateTime.fromFormat(startTime, "hh:mm a A");
-    console.log("start: ", start);
-    
-    var minute = start.minute
-    var hour = start.hour
-    var rule_type;
+    let minute = 0
+    let hour = 0
+
+    if(startTime) {
+      var start = DateTime.fromJSDate(startTime)
+      console.log("start: ", start);
+      minute = start.minute
+      hour = start.hour
+    }
+
+    let rule_type:IceCubeRule = "IceCube::DailyRule"
     switch (rule) {
       case 'daily':
                 rule_type = "IceCube::DailyRule";
@@ -135,21 +152,22 @@ const RecurringSelect: React.FC = () => {
     }
     newValidations["hour_of_day"] = hour;
     newValidations["minute_of_hour"] = minute;
-    iceCubeHash["rule_type"] = rule_type;
-    iceCubeHash["interval"] = interval;
-    iceCubeHash["validations"] = newValidations;
-    iceCubeHash["until"] = until;
+    //console.log("rule type: ", rule_type);
+    
+    const iceCubeHash: IceCubeHash = {
+      rule_type,
+      interval,
+      validations: newValidations,
+      until: DateTime.fromJSDate(until as Date).toString()
+    };
+
+    // iceCubeHash["rule_type"] = rule_type;
+    // iceCubeHash["interval"] = interval;
+    // iceCubeHash["validations"] = newValidations;
+    // iceCubeHash["until"] = until;
     onSave(JSON.stringify(iceCubeHash));
   }
 
-  // const minDate = DateTime.fromFormat(DateTime.now().toString(), "YYYY-MM-DD").toJSDate()
-  const minDate = DateTime.now().toJSDate()
-  // const newStartTime = DateTime.fromFormat(startTime, "hh:mm a A").toString()
-  const newStartTime = startTime as TimePickerValue
-  console.log("startTime: ", newStartTime);
-  console.log("broke startTime: ", DateTime.fromFormat(newStartTime.toString(), "hh:mm a A").toString());
-  
-  
   return (
     <div className="recurring-select">
       <Tabs activeTab="Recurrence Rule">
@@ -163,10 +181,21 @@ const RecurringSelect: React.FC = () => {
             onValidationsChange={handleValidationsChange} />
         </Tab>
         <Tab label="Occurence Time">
-          <TimePicker value={newStartTime} onChange={handleTimeChange} />
+          <TimePicker
+            value={startTime ? startTime : ""}
+            onChange={handleTimeChange}
+          />
+          {/* <TimePicker
+            value={DateTime.now().toJSDate()}
+            onChange={handleTimeChange}
+          /> */}
         </Tab>
         <Tab label="Recurring Until">
-          <DatePicker minDate={minDate} value={until} onChange={handleEndDateChange} />
+          <DatePicker
+            value={until}
+            minDate={DateTime.now().toJSDate()}
+            onChange={handleEndDateChange}
+          />
         </Tab>
       </Tabs>
       <hr/>
