@@ -109,84 +109,75 @@ const RuleSummary: React.FC<RuleSummaryProps> = ({ fields }) => {
 
     switch (fields.rule) {
       case "daily":
-        let dayString = fields.interval === 1 ? "day" : (fields.interval.toString() + " days")
+        const dayString = fields.interval === 1 ? "day" : (fields.interval.toString() + " days")
         sentence.push(dayString)
         break;
 
       case "weekly":
-        let weekString = fields.interval === 1 ? "week" : (fields.interval.toString() + " weeks")
+        const weekString = fields.interval === 1 ? "week" : (fields.interval.toString() + " weeks")
         sentence.push(weekString)
 
         const daysInWeek = fields.validations! as DailyValidations
-        const days:string[] = [];
+        daysInWeek.sort((a, b) => { return a - b })
+        
         if (daysInWeek.length > 0) {
+          const days = daysInWeek.map(dayInWeek => {
+            const key = dayInWeek as keyof WeekDays
+            return weekDays[key]
+          })
+          
           sentence.push("on");
-          // TODO: turn this into a map iterator
-          for (let i = 0; i < daysInWeek.length; i++) {
-            const key = daysInWeek[i] as keyof WeekDays
-            days.push(weekDays[key]);
-          }
           sentence.push(toSentence(days));
         }
         break;
 
       case "monthly":
-        let monthString = fields.interval === 1 ? "month" : (fields.interval.toString() + " months")
-        sentence.push(monthString)
-
+        const monthString = fields.interval === 1 ? "month" : (fields.interval.toString() + " months")
+        if(fields.interval !== 1) { sentence.push(monthString) }
         if (fields.validations!.constructor === Array) {
+
           const daysInMonth = fields.validations as DayOfMonthValidations
-          const days:string[] = []
-          // TODO: turn this into a map iterator
-          for (var i = 0; i < daysInMonth.length; i++) {
-            const key = daysInMonth[i] as keyof MonthDays
-            days.push(englishDay[key]);
-          }
-          if (days.length > 0) {
-            sentence.push("on");
+          
+          if (daysInMonth.length > 0) {
+            const lastDayFound = daysInMonth.indexOf(-1)
+            
+            if(lastDayFound >= 0) { daysInMonth.splice(lastDayFound, 1) }
+
+            daysInMonth.sort((a, b) => { return a - b })
+
+            if(lastDayFound >= 0) { daysInMonth.push(-1) }
+
+            const days = daysInMonth.map(dayInMonth => {
+              const key = dayInMonth as keyof MonthDays
+              return englishDay[key]
+            })
+
+            if (fields.interval !== 1) { sentence.push("on") }
+
             sentence.push(toSentence(days));
-            sentence.push("day");
-            sentence.push("of the month");
+            sentence.push("day of the month");
           }
         } else {
           const daysInMonth = fields.validations! as DayOfWeekValidations
           const days: string[] = []
+          const ordinalWeekStrings: string[] = ["1st ", "2nd ", "3rd ", "4th "]
 
-          // TODO: Refactor this.
-          if (daysInMonth[1].length > 0) {
-            const obj = daysInMonth[1]
+          for (let i = 1; i <= 4; i++) {
+            const week = daysInMonth[i as keyof DayOfWeekValidations]!
+            
+            if (week && typeof(week) !== "number" && week.length > 0) {
+              week.sort((a, b) => { return a - b})
 
-            for (let i = 0; i < obj.length; i++) {
-              const key = obj[i] as keyof WeekDays
-              days.push("1st " + weekDays[key]);
+              for (let j = 0; j < week.length; j++) {
+                const key = week[j] as keyof WeekDays
+                days.push(ordinalWeekStrings[i - 1] + weekDays[key]);
+              }
             }
           }
-          if (daysInMonth[2].length > 0) {
-            const obj = daysInMonth[2]
 
-            for (let i = 0; i < obj.length; i++) {
-              const key = obj[i] as keyof WeekDays
-              days.push("2nd " + weekDays[key]);
-            }
-          }
-          if (daysInMonth[3].length > 0) {
-            const obj = daysInMonth[3]
-
-            for (let i = 0; i < daysInMonth[3].length; i++) {
-              const key = obj[i] as keyof WeekDays
-              days.push("3rd " + weekDays[key]);
-            }
-          }
-          if (daysInMonth[4].length > 0) {
-            const obj = daysInMonth[4]
-
-            for (let i = 0; i < daysInMonth[4].length; i++) {
-              const key = obj[i] as keyof WeekDays
-              days.push("4th " + weekDays[key]);
-            }
-          }
           if (days.length > 0) {
-            sentence.push("on the");
+            if (fields.interval !== 1) { sentence.push("on the") }
+
             sentence.push(toSentence(days));
             sentence.push("of the month");
           }
@@ -201,10 +192,10 @@ const RuleSummary: React.FC<RuleSummaryProps> = ({ fields }) => {
     if(fields.startTime) {
       sentence.push("at");
       sentence.push(DateTime.fromJSDate(fields.startTime).toFormat("h:mm a"));
-
     }
 
     sentence.push("until");
+    
     let untilString = ""
     if(Array.isArray(fields.until)) {
       const dates: string[] = fields.until.map((date) => {

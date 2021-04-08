@@ -112,16 +112,15 @@ const RecurringSelect: React.FC = () => {
     })
   }
   const handleSave = () => {
-    console.log(validations);
-    
-    console.log("startTime: ", startTime);
+    // console.log(validations);
+    // console.log("startTime: ", startTime);
     
     let minute = 0
     let hour = 0
 
     if(startTime) {
       var start = DateTime.fromJSDate(startTime)
-      console.log("start: ", start);
+      // console.log("start: ", start);
       minute = start.minute
       hour = start.hour
     }
@@ -152,7 +151,6 @@ const RecurringSelect: React.FC = () => {
     }
     newValidations["hour_of_day"] = hour;
     newValidations["minute_of_hour"] = minute;
-    //console.log("rule type: ", rule_type);
     
     const iceCubeHash: IceCubeHash = {
       rule_type,
@@ -161,10 +159,6 @@ const RecurringSelect: React.FC = () => {
       until: DateTime.fromJSDate(until as Date).toString()
     };
 
-    // iceCubeHash["rule_type"] = rule_type;
-    // iceCubeHash["interval"] = interval;
-    // iceCubeHash["validations"] = newValidations;
-    // iceCubeHash["until"] = until;
     onSave(JSON.stringify(iceCubeHash));
   }
 

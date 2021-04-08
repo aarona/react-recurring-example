@@ -1,24 +1,29 @@
 import React from 'react'
 import DayOfWeekPicker from './DayOfWeekPicker'
+import { DayOfWeekValidations } from './RecurringSelect';
 
 interface DayOfWeekOfMonthPickerProps {
-  validations: any
-  onValidationsChange: (validations: any) => void
+  validations: DayOfWeekValidations
+  onValidationsChange: (validations: DayOfWeekValidations) => void
 }
 
 export const DayOfWeekOfMonthPicker: React.FC<DayOfWeekOfMonthPickerProps> = ({ validations, onValidationsChange }) => {
-  const handleDayOfWeekChange = (week:any, e:any) => {
-    var weeks = validations;
-    var days = weeks[week];
-    var day = parseInt(e.target.id);
-    var index = days.indexOf(day);
-    if (index > -1) {
-      days.splice(index, 1);
-    } else {
-      days.push(day);
+  const handleDayOfWeekChange = (week:number, e:any) => {
+    const weeks = validations;
+    const key = week as keyof DayOfWeekValidations
+    const days = weeks[key]
+    const day = parseInt(e.target.id)
+
+    if(Array.isArray(days)) {
+      var index = days.indexOf(day)
+      if (index > -1) {
+        days.splice(index, 1)
+      } else {
+        days.push(day)
+      }
+      
+      onValidationsChange(weeks)
     }
-    weeks[week] = days;
-    onValidationsChange(weeks);
   }
 
   var weeks = validations;
