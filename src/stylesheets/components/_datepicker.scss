@@ -198,7 +198,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  touch-callout: none;
   -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;
@@ -229,9 +228,17 @@
 .date-picker .dp-decade-view,
 .date-picker .dp-year-view,
 .date-picker .dp-month-view {
-  touch-callout: none;
   -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
+}
+.monthly-day-of-the-week {
+  margin-left: 8px;
+}
+.monthly-day-of-the-week > div > div {
+  width: 500px;
+}
+.label {
+  margin-top: 7px;
 }

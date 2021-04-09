@@ -18,7 +18,7 @@ export const MonthlyRulePicker: React.FC<MonthlyRulePickerProps> = ({
 }) => {
   let pickerComponent;
   if (validations.constructor === Array) {
-    pickerComponent = <DayOfMonthPicker activeDays={validations} onValidationsChange={onValidationsChange} />;
+    pickerComponent = <DayOfMonthPicker days={validations} onValidationsChange={onValidationsChange} />;
   } else if (validations.constructor === Object) {
     const valid = validations as DayOfWeekValidations
     pickerComponent = <DayOfWeekOfMonthPicker weeks={valid} onValidationsChange={onValidationsChange} />;

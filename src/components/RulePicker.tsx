@@ -22,7 +22,7 @@ const RulePicker: React.FC<RulePickerProps> = ({
   onIntervalChange,
   onValidationsChange
 }) => {
-  const getRule = () => {
+  const Picker = () => {
     switch (rule) {
       case "daily":
         return <DailyRulePicker
@@ -53,6 +53,7 @@ const RulePicker: React.FC<RulePickerProps> = ({
           onIntervalChange={onIntervalChange}
         />
     }
+    return <></>
   }
 
   return (
@@ -65,7 +66,7 @@ const RulePicker: React.FC<RulePickerProps> = ({
         <option value="monthly (by day of month)">Monthly (by day of month)</option>
         <option value="yearly">Yearly</option>
       </select>
-      {getRule()}
+      <Picker />
     </div>
   );
 }

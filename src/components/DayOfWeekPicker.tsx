@@ -3,11 +3,11 @@ import { DailyValidations } from './RecurringSelect'
 
 interface DayOfWeekPickerProps {
   label?: string
-  activeDays: DailyValidations
+  days: DailyValidations
   onDayChange: (e: any) => void
 }
 
-const DayOfWeekPicker: React.FC<DayOfWeekPickerProps> = ({ label, activeDays, onDayChange }) => {
+const DayOfWeekPicker: React.FC<DayOfWeekPickerProps> = ({ label, days, onDayChange }) => {
   const Label = () => {
     if (label) {
       return <div className="col-xs">
@@ -19,7 +19,7 @@ const DayOfWeekPicker: React.FC<DayOfWeekPickerProps> = ({ label, activeDays, on
   }
 
   const className = (day: number) => {
-    return activeDays.indexOf(day) > -1 ? "btn active" : "btn"
+    return days.indexOf(day) > -1 ? "btn active" : "btn"
   }
 
   const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]

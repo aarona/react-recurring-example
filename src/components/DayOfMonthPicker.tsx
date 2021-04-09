@@ -2,13 +2,12 @@ import React from 'react'
 import { DayOfMonthValidations } from './RecurringSelect';
 
 interface DayOfMonthPickerProps {
-  activeDays: DayOfMonthValidations
+  days: DayOfMonthValidations
   onValidationsChange: (validations: any) => void
 }
 
-export const DayOfMonthPicker: React.FC<DayOfMonthPickerProps> = ({ activeDays, onValidationsChange }) => {
+export const DayOfMonthPicker: React.FC<DayOfMonthPickerProps> = ({ days, onValidationsChange }) => {
   const handleDayChange = (e: any) => {
-    const days = activeDays
     const day = parseInt(e.target.id)
     const index = days.indexOf(day)
 
@@ -21,7 +20,7 @@ export const DayOfMonthPicker: React.FC<DayOfMonthPickerProps> = ({ activeDays, 
   }
 
   const className = (day: number) => {
-    return activeDays.indexOf(day) > -1 ? "btn active" : "btn"
+    return days.indexOf(day) > -1 ? "btn active" : "btn"
   }
 
   return <div style={{width: "300px"}}>

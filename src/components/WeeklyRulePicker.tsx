@@ -11,7 +11,6 @@ interface WeeklyRulePickerProps {
 
 const WeeklyRulePicker: React.FC<WeeklyRulePickerProps> = ({ interval, days, onIntervalChange, onValidationsChange }) => {
   const handleDayChange = (e: any) => {
-    // const days = validations;
     const day = parseInt(e.target.id);
     const index = days.indexOf(day);
 
@@ -24,11 +23,10 @@ const WeeklyRulePicker: React.FC<WeeklyRulePickerProps> = ({ interval, days, onI
     onValidationsChange(days);
   }
 
-  // var days = validations;
   return (
     <div className="rule">
       Every <input className="interval" type="text" value={interval} onChange={onIntervalChange}></input> week(s) on:
-      <DayOfWeekPicker onDayChange={handleDayChange} activeDays={days} />
+      <DayOfWeekPicker onDayChange={handleDayChange} days={days} />
     </div>
   );
 }

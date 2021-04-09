@@ -29,6 +29,7 @@
   flex-wrap: wrap;
   margin-right: -0.5rem;
   margin-left: -0.5rem;
+  width: 350px;
 }
 
 .row.reverse {
@@ -1064,13 +1065,13 @@
 }
 
 .last-day {
-  width: 59px !important;
+  width: 78px;
   flex-basis: initial;
   flex-grow: unset;
 }
 
 .grid-end {
-  width: 122px !important;
+  width: 122px;
   flex-basis: initial;
   flex-grow: unset;
 }
