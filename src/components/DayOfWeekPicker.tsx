@@ -1,46 +1,38 @@
 import React from 'react'
-import cn from 'classnames'
+import { DailyValidations } from './RecurringSelect'
 
 interface DayOfWeekPickerProps {
   label?: string
-  active: any
+  activeDays: DailyValidations
   onDayChange: (e: any) => void
 }
 
-const DayOfWeekPicker: React.FC<DayOfWeekPickerProps> = ({ label, active, onDayChange }) => {
+const DayOfWeekPicker: React.FC<DayOfWeekPickerProps> = ({ label, activeDays, onDayChange }) => {
   const Label = () => {
     if (label) {
-      return React.createElement('div', { className: "col-xs" }, React.createElement('div', { className: "label" }, label));
+      return <div className="col-xs">
+        <div className="label">{label}</div>
+      </div>
     }
 
     return <></>
   }
 
-  var activeDays = active;
+  const className = (day: number) => {
+    return activeDays.indexOf(day) > -1 ? "btn active" : "btn"
+  }
+
+  const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+
   return (
     <div className="row">
       <Label />
-      <div className="col-xs">
-        <div id="0" className={cn("btn", {active: activeDays.indexOf(0) > -1})} onClick={onDayChange}>Sun</div>
-      </div>
-      <div className="col-xs">
-        <div id="1" className={cn("btn", {active: activeDays.indexOf(1) > -1})} onClick={onDayChange}>Mon</div>
-      </div>
-      <div className="col-xs">
-        <div id="2" className={cn("btn", {active: activeDays.indexOf(2) > -1})} onClick={onDayChange}>Tue</div>
-      </div>
-      <div className="col-xs">
-        <div id="3" className={cn("btn", {active: activeDays.indexOf(3) > -1})} onClick={onDayChange}>Wed</div>
-      </div>
-      <div className="col-xs">
-        <div id="4" className={cn("btn", {active: activeDays.indexOf(4) > -1})} onClick={onDayChange}>Thu</div>
-      </div>
-      <div className="col-xs">
-        <div id="5" className={cn("btn", {active: activeDays.indexOf(5) > -1})} onClick={onDayChange}>Fri</div>
-      </div>
-      <div className="col-xs">
-        <div id="6" className={cn("btn", {active: activeDays.indexOf(6) > -1})} onClick={onDayChange}>Sat</div>
-      </div>
+      {weekdayLabels.map((weekDay, index) => {
+        return <div key={index} className="col-xs">
+          <div id={index.toString()} className={className(index)} onClick={onDayChange}>{weekDay}</div>
+        </div>
+      })}
+     
     </div>
   );
 }

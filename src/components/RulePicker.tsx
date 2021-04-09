@@ -3,14 +3,15 @@ import DailyRulePicker from './DailyRulePicker'
 import WeeklyRulePicker from './WeeklyRulePicker'
 import MonthlyRulePicker from './MonthlyRulePicker'
 import YearlyRulePicker from './YearlyRulePicker'
+import { DailyValidations, DayOfMonthValidations, DayOfWeekValidations, Validations } from './RecurringSelect'
 
 interface RulePickerProps {
   rule: string
   interval: number
-  validations: any
+  validations: Validations
   onRuleChange: (e: any) => void
   onIntervalChange: (e: any) => void
-  onValidationsChange: (validations: any) => void
+  onValidationsChange: (validations: Validations) => void
 }
 
 const RulePicker: React.FC<RulePickerProps> = ({
@@ -29,16 +30,20 @@ const RulePicker: React.FC<RulePickerProps> = ({
           onIntervalChange={onIntervalChange}
         />
       case "weekly":
+        const weeklyDays = validations as DailyValidations
+
         return <WeeklyRulePicker
           interval={interval}
-          validations={validations}
+          days={weeklyDays}
           onIntervalChange={onIntervalChange}
           onValidationsChange={onValidationsChange}
         />
       case "monthly":
+        const monthlyDays = validations as DayOfWeekValidations | DayOfMonthValidations
+
         return <MonthlyRulePicker
           interval={interval}
-          validations={validations}
+          validations={monthlyDays}
           onIntervalChange={onIntervalChange}
           onValidationsChange={onValidationsChange}
         />

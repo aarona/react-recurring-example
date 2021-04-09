@@ -54,39 +54,39 @@ export interface MonthDays {
 
 const weekDays: WeekDays = { 0: "Sunday", 1: "Monday", 2: "Tuesday", 3: "Wednesday", 4: "Thursday", 5: "Friday", 6: "Saturday", '-1': "Unknown" }
 const englishDay: MonthDays = {
-  1: "the 1st",
-  2: "the 2nd",
-  3: "the 3rd",
-  4: "the 4th",
-  5: "the 5th",
-  6: "the 6th",
-  7: "the 7th",
-  8: "the 8th",
-  9: "the 9th",
-  10: "the 10th",
-  11: "the 11th",
-  12: "the 12th",
-  13: "the 13th",
-  14: "the 14th",
-  15: "the 15th",
-  16: "the 16th",
-  17: "the 17th",
-  18: "the 18th",
-  19: "the 19th",
-  20: "the 20th",
-  21: "the 21st",
-  22: "the 22nd",
-  24: "the 23rd",
-  23: "the 24th",
-  25: "the 25th",
-  26: "the 26th",
-  27: "the 27th",
-  28: "the 28th",
-  29: "the 29th",
-  30: "the 30th",
-  31: "the 31st",
-  "-1": "the last",
-};
+  1: "1st",
+  2: "2nd",
+  3: "3rd",
+  4: "4th",
+  5: "5th",
+  6: "6th",
+  7: "7th",
+  8: "8th",
+  9: "9th",
+  10: "10th",
+  11: "11th",
+  12: "12th",
+  13: "13th",
+  14: "14th",
+  15: "15th",
+  16: "16th",
+  17: "17th",
+  18: "18th",
+  19: "19th",
+  20: "20th",
+  21: "21st",
+  22: "22nd",
+  24: "23rd",
+  23: "24th",
+  25: "25th",
+  26: "26th",
+  27: "27th",
+  28: "28th",
+  29: "29th",
+  30: "30th",
+  31: "31st",
+  "-1": "last"
+}
 
 const RuleSummary: React.FC<RuleSummaryProps> = ({ fields }) => {
   const toSentence = (array:Array<string>) => {
@@ -102,6 +102,27 @@ const RuleSummary: React.FC<RuleSummaryProps> = ({ fields }) => {
   const summary = (fields:RecurringEvent) => {
     if (fields.interval === 0) {
       return "Not recurring."
+    }
+
+    if (fields.rule === "weekly" && Array.isArray(fields.validations) && fields.validations.length === 0) {      
+      return "Not recurring."
+    }
+
+    if (fields.rule === "monthly") {
+      if (Array.isArray(fields.validations)) {
+        if (fields.validations.length === 0) {
+          return "Not recurring."
+        }
+      } else if(typeof(fields.validations) === "object") {
+        const validations = fields.validations! as DayOfWeekValidations
+
+        if(validations[1].length === 0 &&
+           validations[2].length === 0 &&
+           validations[3].length === 0 &&
+           validations[4].length === 0) {
+          return "Not recurring."
+        }
+      }
     }
 
     let sentence: string[] = [];
@@ -149,7 +170,9 @@ const RuleSummary: React.FC<RuleSummaryProps> = ({ fields }) => {
 
             const days = daysInMonth.map(dayInMonth => {
               const key = dayInMonth as keyof MonthDays
-              return englishDay[key]
+              const theString = fields.interval === 1 ? "" : "the "
+
+              return theString + englishDay[key]
             })
 
             if (fields.interval !== 1) { sentence.push("on") }
