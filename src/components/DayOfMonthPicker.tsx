@@ -1,9 +1,12 @@
 import React from 'react'
-import { DayOfMonthValidations } from './RecurringSelect';
+import {
+  MonthlyDayOfMonth,
+  MonthlyDayOfMonthValidations
+} from './RecurringSelect';
 
 interface DayOfMonthPickerProps {
-  days: DayOfMonthValidations
-  onValidationsChange: (validations: any) => void
+  days: MonthlyDayOfMonth
+  onValidationsChange: (validations: MonthlyDayOfMonthValidations) => void
 }
 
 export const DayOfMonthPicker: React.FC<DayOfMonthPickerProps> = ({ days, onValidationsChange }) => {
@@ -16,7 +19,7 @@ export const DayOfMonthPicker: React.FC<DayOfMonthPickerProps> = ({ days, onVali
     } else {
       days.push(day);
     }
-    onValidationsChange(days);
+    onValidationsChange({ day_of_month: days });
   }
 
   const className = (day: number) => {

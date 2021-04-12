@@ -1,13 +1,17 @@
 import React from 'react'
 import DayOfWeekOfMonthPicker from './DayOfWeekOfMonthPicker'
 import DayOfMonthPicker from './DayOfMonthPicker'
-import { DayOfMonthValidations, DayOfWeekValidations } from './RecurringSelect';
+import {
+  MonthlyDayOfMonthValidations,
+  MonthlyDayOfWeekValidations,
+  Validations
+} from './RecurringSelect';
 
 interface MonthlyRulePickerProps {
   interval: number
-  validations: DayOfMonthValidations | DayOfWeekValidations
+  validations: MonthlyDayOfMonthValidations | MonthlyDayOfWeekValidations
   onIntervalChange: (e: any) => void
-  onValidationsChange: (validations: any) => void
+  onValidationsChange: (validations: Validations) => void
 }
 
 export const MonthlyRulePicker: React.FC<MonthlyRulePickerProps> = ({
@@ -16,16 +20,27 @@ export const MonthlyRulePicker: React.FC<MonthlyRulePickerProps> = ({
   onIntervalChange,
   onValidationsChange
 }) => {
-  let pickerComponent;
-  if (validations.constructor === Array) {
-    pickerComponent = <DayOfMonthPicker days={validations} onValidationsChange={onValidationsChange} />;
-  } else if (validations.constructor === Object) {
-    const valid = validations as DayOfWeekValidations
-    pickerComponent = <DayOfWeekOfMonthPicker weeks={valid} onValidationsChange={onValidationsChange} />;
+  const isDayOfMonth = () => {
+    return (validations as MonthlyDayOfMonthValidations).day_of_month ? true : false
   }
+
+  const PickerComponent = () => {
+    let pickerComponent;
+
+    if (isDayOfMonth()) {
+      const days = (validations as MonthlyDayOfMonthValidations).day_of_month
+      pickerComponent = <DayOfMonthPicker days={days} onValidationsChange={onValidationsChange} />;
+    } else {
+      const weeks = (validations as MonthlyDayOfWeekValidations).day_of_week
+      pickerComponent = <DayOfWeekOfMonthPicker weeks={weeks} onValidationsChange={onValidationsChange} />;
+    }
+
+    return pickerComponent
+  }
+  
   return <div className="rule">
     Every <input className="interval" type="text" value={interval} onChange={onIntervalChange}></input> month(s) on:
-    {pickerComponent}
+    <PickerComponent />
   </div>
 }
 

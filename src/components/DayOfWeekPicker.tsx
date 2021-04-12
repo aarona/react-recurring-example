@@ -1,9 +1,9 @@
 import React from 'react'
-import { DailyValidations } from './RecurringSelect'
+import { DayOfWeek } from './RecurringSelect'
 
 interface DayOfWeekPickerProps {
   label?: string
-  days: DailyValidations
+  days: DayOfWeek
   onDayChange: (e: any) => void
 }
 

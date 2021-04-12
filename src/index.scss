@@ -8,9 +8,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.code-heading {
+  font-weight: bold;
+}
+.code {
+  padding: 10px 0px;
+  background-color: lightgray;
 }
 
 @import './stylesheets/main.scss'

@@ -1,12 +1,12 @@
 import React from 'react'
 import DayOfWeekPicker from './DayOfWeekPicker'
-import { DailyValidations } from './RecurringSelect';
+import { DayOfWeek, DayOfWeekValidations } from './RecurringSelect';
 
 interface WeeklyRulePickerProps {
   interval: number
-  days: DailyValidations
+  days: DayOfWeek
   onIntervalChange: (e: any) => void
-  onValidationsChange: (validations: DailyValidations) => void
+  onValidationsChange: (validations: DayOfWeekValidations) => void
 }
 
 const WeeklyRulePicker: React.FC<WeeklyRulePickerProps> = ({ interval, days, onIntervalChange, onValidationsChange }) => {
@@ -20,7 +20,7 @@ const WeeklyRulePicker: React.FC<WeeklyRulePickerProps> = ({ interval, days, onI
       days.push(day);
     }
 
-    onValidationsChange(days);
+    onValidationsChange({ day: days});
   }
 
   return (

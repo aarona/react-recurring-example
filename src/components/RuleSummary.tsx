@@ -1,6 +1,12 @@
 import { DateTime } from 'luxon';
 import React from 'react'
-import { RecurringEvent, DailyValidations, DayOfMonthValidations, DayOfWeekValidations } from './RecurringSelect';
+import {
+  RecurringEvent,
+  MonthlyDayOfWeek,
+  MonthlyDayOfWeekValidations,
+  DayOfWeekValidations,
+  MonthlyDayOfMonthValidations
+} from './RecurringSelect';
 
 interface RuleSummaryProps {
   fields: RecurringEvent
@@ -89,6 +95,7 @@ const englishDay: MonthDays = {
 }
 
 const RuleSummary: React.FC<RuleSummaryProps> = ({ fields }) => {
+  const { interval, rule, startTime, until, validations } = fields
   const toSentence = (array:Array<string>) => {
     if (array.length === 0) {
       return "";
@@ -99,141 +106,166 @@ const RuleSummary: React.FC<RuleSummaryProps> = ({ fields }) => {
     const last = array.pop();
     return array.join(", ") + " and " + last;
   }
-  const summary = (fields:RecurringEvent) => {
-    if (fields.interval === 0) {
-      return "Not recurring."
+  const weeklyNotRecurring = () => {
+    const weeklyValidations = validations as DayOfWeekValidations
+
+    return weeklyValidations && weeklyValidations.day?.length === 0
+  }
+  const monthlyNotRecurring = () => {
+    const dayOfMonthValidations = validations as MonthlyDayOfMonthValidations
+    const dayOfWeekValidations = validations as MonthlyDayOfWeekValidations
+    
+    if (dayOfMonthValidations.day_of_month?.length === 0) {
+      return true
     }
 
-    if (fields.rule === "weekly" && Array.isArray(fields.validations) && fields.validations.length === 0) {      
-      return "Not recurring."
+    if (dayOfWeekValidations.day_of_week) {
+      if (dayOfWeekValidations.day_of_week[1].length === 0 &&
+        dayOfWeekValidations.day_of_week[2].length === 0 &&
+        dayOfWeekValidations.day_of_week[3].length === 0 &&
+        dayOfWeekValidations.day_of_week[4].length === 0) {
+        return true
+      }
     }
 
-    if (fields.rule === "monthly") {
-      if (Array.isArray(fields.validations)) {
-        if (fields.validations.length === 0) {
-          return "Not recurring."
-        }
-      } else if(typeof(fields.validations) === "object") {
-        const validations = fields.validations! as DayOfWeekValidations
+    return false
+  }
+  const dayString = () => interval === 1 ? "day" : (interval.toString() + " days")
+  const weekString = () => interval === 1 ? "week" : (interval.toString() + " weeks")
+  const yearString = () => interval === 1 ? "year" : (interval.toString() + " years")
+  const weeklySummary = (sentence: string[]) => {
+    const { day: daysInWeek } = validations as DayOfWeekValidations
+    daysInWeek.sort((a, b) => { return a - b })
 
-        if(validations[1].length === 0 &&
-           validations[2].length === 0 &&
-           validations[3].length === 0 &&
-           validations[4].length === 0) {
-          return "Not recurring."
+    if (daysInWeek.length > 0) {
+      const days = daysInWeek.map((dayInWeek) => {
+        const key = dayInWeek as keyof WeekDays
+        return weekDays[key]
+      })
+
+      sentence.push("on");
+      sentence.push(toSentence(days));
+    }
+  }
+  const dayOfTheWeekSummary = (sentence: string[]) => {
+    const daysInMonth = (validations as MonthlyDayOfWeekValidations).day_of_week
+    const days: string[] = []
+    const ordinalWeekStrings: string[] = ["1st ", "2nd ", "3rd ", "4th "]
+
+    for (let i = 1; i <= 4; i++) {
+      const week = daysInMonth[i as keyof MonthlyDayOfWeek]!
+
+      if (week && typeof (week) !== "number" && week.length > 0) {
+        week.sort((a, b) => { return a - b })
+
+        for (let j = 0; j < week.length; j++) {
+          const key = week[j] as keyof WeekDays
+          days.push(ordinalWeekStrings[i - 1] + weekDays[key]);
         }
       }
+    }
+
+    if (days.length > 0) {
+      if (interval !== 1) { sentence.push("on the") }
+
+      sentence.push(toSentence(days));
+      sentence.push("of the month");
+    }
+  }
+  const dayOfTheMonthSummary = (sentence: string[]) => {
+    const daysInMonth = (validations as MonthlyDayOfMonthValidations).day_of_month
+
+    if (daysInMonth.length > 0) {
+      const lastDayFound = daysInMonth.indexOf(-1)
+
+      if (lastDayFound >= 0) { daysInMonth.splice(lastDayFound, 1) }
+
+      daysInMonth.sort((a, b) => { return a - b })
+
+      if (lastDayFound >= 0) { daysInMonth.push(-1) }
+
+      const days = daysInMonth.map(dayInMonth => {
+        const key = dayInMonth as keyof MonthDays
+        const theString = interval === 1 ? "" : "the "
+
+        return theString + englishDay[key]
+      })
+
+      if (interval !== 1) { sentence.push("on") }
+
+      sentence.push(toSentence(days));
+      sentence.push("day of the month");
+    }
+  }
+  const startSummary = (sentence: string[]) => {
+    if (startTime) {
+      sentence.push("at");
+      sentence.push(DateTime.fromJSDate(startTime).toFormat("h:mm a"));
+    }
+  }
+  const untilSummary = (sentence: string[]) => {
+    sentence.push("until");
+
+    let untilString = ""
+    if (Array.isArray(until)) {
+      const dates: string[] = until.map((date) => {
+        return DateTime.fromJSDate(date).toFormat('DDDD')
+      })
+      untilString = toSentence(dates)
+    } else {
+      untilString = DateTime.fromJSDate(until).toFormat('DDDD')
+    }
+    sentence.push(untilString);
+  }
+  const Summary = () => {
+    if (interval === 0) {
+      return <>Not recurring.</>
+    }
+
+    if (rule === "weekly") {      
+      if(weeklyNotRecurring()) { return <>Not recurring.</> }
+    }
+
+    if (rule === "monthly") {
+      if(monthlyNotRecurring()) { return <>Not recurring.</> }
     }
 
     let sentence: string[] = [];
     sentence.push("Every");
 
-    switch (fields.rule) {
+    switch (rule) {
       case "daily":
-        const dayString = fields.interval === 1 ? "day" : (fields.interval.toString() + " days")
-        sentence.push(dayString)
+        sentence.push(dayString())
         break;
 
       case "weekly":
-        const weekString = fields.interval === 1 ? "week" : (fields.interval.toString() + " weeks")
-        sentence.push(weekString)
-
-        const daysInWeek = fields.validations! as DailyValidations
-        daysInWeek.sort((a, b) => { return a - b })
-        
-        if (daysInWeek.length > 0) {
-          const days = daysInWeek.map(dayInWeek => {
-            const key = dayInWeek as keyof WeekDays
-            return weekDays[key]
-          })
-          
-          sentence.push("on");
-          sentence.push(toSentence(days));
-        }
+        sentence.push(weekString())
+        weeklySummary(sentence)
         break;
 
       case "monthly":
-        const monthString = fields.interval === 1 ? "month" : (fields.interval.toString() + " months")
-        if(fields.interval !== 1) { sentence.push(monthString) }
-        if (fields.validations!.constructor === Array) {
+        if (interval !== 1) { sentence.push(interval.toString() + " months") }
 
-          const daysInMonth = fields.validations as DayOfMonthValidations
-          
-          if (daysInMonth.length > 0) {
-            const lastDayFound = daysInMonth.indexOf(-1)
-            
-            if(lastDayFound >= 0) { daysInMonth.splice(lastDayFound, 1) }
-
-            daysInMonth.sort((a, b) => { return a - b })
-
-            if(lastDayFound >= 0) { daysInMonth.push(-1) }
-
-            const days = daysInMonth.map(dayInMonth => {
-              const key = dayInMonth as keyof MonthDays
-              const theString = fields.interval === 1 ? "" : "the "
-
-              return theString + englishDay[key]
-            })
-
-            if (fields.interval !== 1) { sentence.push("on") }
-
-            sentence.push(toSentence(days));
-            sentence.push("day of the month");
-          }
+        if ((validations as MonthlyDayOfMonthValidations).day_of_month) {
+          dayOfTheMonthSummary(sentence)
         } else {
-          const daysInMonth = fields.validations! as DayOfWeekValidations
-          const days: string[] = []
-          const ordinalWeekStrings: string[] = ["1st ", "2nd ", "3rd ", "4th "]
-
-          for (let i = 1; i <= 4; i++) {
-            const week = daysInMonth[i as keyof DayOfWeekValidations]!
-            
-            if (week && typeof(week) !== "number" && week.length > 0) {
-              week.sort((a, b) => { return a - b})
-
-              for (let j = 0; j < week.length; j++) {
-                const key = week[j] as keyof WeekDays
-                days.push(ordinalWeekStrings[i - 1] + weekDays[key]);
-              }
-            }
-          }
-
-          if (days.length > 0) {
-            if (fields.interval !== 1) { sentence.push("on the") }
-
-            sentence.push(toSentence(days));
-            sentence.push("of the month");
-          }
+          dayOfTheWeekSummary(sentence)
         }
         break;
 
       case "yearly":
-        const yearString = fields.interval === 1 ? "year" : (fields.interval.toString() + " years")
-        sentence.push(yearString)
+        sentence.push(yearString())
         break;
     }
-    if(fields.startTime) {
-      sentence.push("at");
-      sentence.push(DateTime.fromJSDate(fields.startTime).toFormat("h:mm a"));
-    }
+    startSummary(sentence)
 
-    sentence.push("until");
+    untilSummary(sentence)
     
-    let untilString = ""
-    if(Array.isArray(fields.until)) {
-      const dates: string[] = fields.until.map((date) => {
-        return DateTime.fromJSDate(date).toFormat('DDDD')
-      })
-      untilString = toSentence(dates)
-    } else {
-      untilString = DateTime.fromJSDate(fields.until).toFormat('DDDD')
-    }
-    sentence.push(untilString);
-    return sentence.join(' ');
+    return <>{sentence.join(' ')}</>
   }
 
   return (
-    <div className="summary">{summary(fields)}</div>
+    <div className="summary"><Summary /></div>
   );
 }
 
