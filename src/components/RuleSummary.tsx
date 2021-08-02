@@ -204,18 +204,20 @@ const RuleSummary: React.FC<RuleSummaryProps> = ({ fields }) => {
     }
   }
   const untilSummary = (sentence: string[]) => {
-    sentence.push("until");
+    if(until) {
+      sentence.push("until")
 
-    let untilString = ""
-    if (Array.isArray(until)) {
-      const dates: string[] = until.map((date) => {
-        return DateTime.fromJSDate(date).toFormat('DDDD')
-      })
-      untilString = toSentence(dates)
-    } else {
-      untilString = DateTime.fromJSDate(until).toFormat('DDDD')
+      let untilString = ""
+      if (Array.isArray(until)) {
+        const dates: string[] = until.map((date) => {
+          return DateTime.fromJSDate(date).toFormat('DDDD')
+        })
+        untilString = toSentence(dates)
+      } else {
+        untilString = DateTime.fromJSDate(until).toFormat('DDDD')
+      }
+      sentence.push(untilString)
     }
-    sentence.push(untilString);
   }
   const Summary = () => {
     if (interval === 0) {

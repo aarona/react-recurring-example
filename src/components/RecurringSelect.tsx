@@ -32,7 +32,7 @@ type IceCubeRule = "IceCube::DailyRule" | "IceCube::WeeklyRule" | "IceCube::Mont
 export type IceCubeHash = {
   rule_type: IceCubeRule
   interval: number,
-  until: string,
+  until?: string,
   validations: Validations
 }
 
@@ -40,7 +40,7 @@ export interface RecurringEvent {
   rule: string
   interval: number
   validations: Validations
-  until: Date | Date[]
+  until?: Date | Date[]
   startTime?: Date
 }
 
@@ -105,14 +105,20 @@ const RecurringSelect: React.FC<RecurringSelectProps> = ({ onSave }) => {
       startTime
     })
   }
-  const handleEndDateChange = (date: Date | Date[]) => {
-    setRecurringEvent({
+  const handleEndDateChange = (date?: Date | Date[]) => {
+    let recurring: RecurringEvent = {
       rule,
       interval,
       validations,
-      until: date,
       startTime
-    })
+    }
+    
+    if(date) {
+      console.log("setting date until: ", date);
+      recurring = { ...recurring, until: date }
+    }
+
+    setRecurringEvent(recurring)
   }
   const handleTimeChange = (time:TimePickerValue) => {
     var startTime: Date | undefined = undefined
@@ -132,13 +138,22 @@ const RecurringSelect: React.FC<RecurringSelectProps> = ({ onSave }) => {
   const handleSave = () => {
     const rule_type = iceCubeRule()
     const validations: Validations = iceCubeValidtions()
-    const newUntil = DateTime.fromJSDate(until as Date).toString()
-    const iceCubeHash: IceCubeHash = {
+
+    let newUntil:string | undefined = undefined
+
+    if(until) {
+      newUntil = DateTime.fromJSDate(until as Date).toString()
+    }
+
+    let iceCubeHash: IceCubeHash = {
       rule_type,
       interval,
-      validations,
-      until: newUntil
+      validations
     };
+
+    if(until) {
+      iceCubeHash = {...iceCubeHash, until: newUntil}
+    }
 
     onSave(iceCubeHash);
   }
