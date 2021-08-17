@@ -11,6 +11,7 @@
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.0",
+    "@types/react-time-picker": "^4.0.1",
     "luxon": "^1.26.0",
     "node-sass": "^5.0.0",
     "react": "^17.0.2",
@@ -44,8 +45,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@types/react-time-picker": "^4.0.1"
   }
 }
