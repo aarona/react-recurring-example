@@ -7,22 +7,7 @@ import { DateTime } from 'luxon'
 import Tabs, { Tab } from './Tabs'
 
 export type DayOfWeek = number[]
-// export type MonthlyDayOfWeek = { 1: number[], 2: number[], 3: number[], 4: number[] }
-export type MonthlyDayOfWeek = {
-  0: number[],
-  1: number[],
-  2: number[],
-  3: number[],
-  4: number[],
-  5: number[],
-  6: number[]
-}
-export type WeekOfMonth = {
-  1: number[],
-  2: number[],
-  3: number[],
-  4: number[]
-}
+export type MonthlyDayOfWeek = { 1: number[], 2: number[], 3: number[], 4: number[] }
 export type MonthlyDayOfMonth = number[]
 
 interface BaseValidations {
@@ -82,9 +67,7 @@ const RecurringSelect: React.FC<RecurringSelectProps> = ({ onSave }) => {
     } 
     if (rule === "monthly (by day of week)") {
       rule = "monthly";
-      validations = {
-        day_of_week: { 0: [], 1: [], 2: [], 3: [], 4: [], 5:[], 6:[] }
-      } as MonthlyDayOfWeekValidations
+      validations = { day_of_week: { 1: [], 2: [], 3: [], 4: [] }} as MonthlyDayOfWeekValidations
     }
     if (rule === "monthly (by day of month)") {
       rule = "monthly";
@@ -131,6 +114,7 @@ const RecurringSelect: React.FC<RecurringSelectProps> = ({ onSave }) => {
     }
     
     if(date) {
+      console.log("setting date until: ", date);
       recurring = { ...recurring, until: date }
     }
 
@@ -154,6 +138,7 @@ const RecurringSelect: React.FC<RecurringSelectProps> = ({ onSave }) => {
   const handleSave = () => {
     const rule_type = iceCubeRule()
     const validations: Validations = iceCubeValidtions()
+
     let newUntil:string | undefined = undefined
 
     if(until) {
