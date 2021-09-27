@@ -5,7 +5,8 @@ import {
   MonthlyDayOfWeek,
   MonthlyDayOfWeekValidations,
   DayOfWeekValidations,
-  MonthlyDayOfMonthValidations
+  MonthlyDayOfMonthValidations,
+  WeekOfMonth
 } from './RecurringSelect';
 
 interface RuleSummaryProps {
@@ -120,10 +121,13 @@ const RuleSummary: React.FC<RuleSummaryProps> = ({ fields }) => {
     }
 
     if (dayOfWeekValidations.day_of_week) {
-      if (dayOfWeekValidations.day_of_week[1].length === 0 &&
+      if (dayOfWeekValidations.day_of_week[0].length === 0 &&
+        dayOfWeekValidations.day_of_week[1].length === 0 &&
         dayOfWeekValidations.day_of_week[2].length === 0 &&
         dayOfWeekValidations.day_of_week[3].length === 0 &&
-        dayOfWeekValidations.day_of_week[4].length === 0) {
+        dayOfWeekValidations.day_of_week[4].length === 0 &&
+        dayOfWeekValidations.day_of_week[5].length === 0 &&
+        dayOfWeekValidations.day_of_week[6].length === 0) {
         return true
       }
     }
@@ -151,9 +155,25 @@ const RuleSummary: React.FC<RuleSummaryProps> = ({ fields }) => {
     const daysInMonth = (validations as MonthlyDayOfWeekValidations).day_of_week
     const days: string[] = []
     const ordinalWeekStrings: string[] = ["1st ", "2nd ", "3rd ", "4th "]
+    const weeks:WeekOfMonth = {
+      1: [],
+      2: [],
+      3: [],
+      4: []
+    }
 
-    for (let i = 1; i <= 4; i++) {
-      const week = daysInMonth[i as keyof MonthlyDayOfWeek]!
+    for (let day = 0 as keyof MonthlyDayOfWeek; day <= 6; day++) {
+      const dayOfWeek = daysInMonth[day]
+
+      for(let week = 1 as keyof WeekOfMonth; week <= 4; week++) {
+        if(dayOfWeek.indexOf(week) > -1) {
+          weeks[week].push(day)
+        }
+      }
+    }
+
+    for (let i = 1 as keyof WeekOfMonth; i <= 4; i++) {
+      const week = weeks[i]
 
       if (week && typeof (week) !== "number" && week.length > 0) {
         week.sort((a, b) => { return a - b })
@@ -164,7 +184,7 @@ const RuleSummary: React.FC<RuleSummaryProps> = ({ fields }) => {
         }
       }
     }
-
+    
     if (days.length > 0) {
       if (interval !== 1) { sentence.push("on the") }
 
